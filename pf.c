@@ -13,24 +13,6 @@ Bajas
 Consultas
 Modificaciones
 Salir
-
-tablas:
-clientes
-	codigo_cliente
-	Nombre_empresa
-	Nombre_cliente
-	puesto
-
-productos
-	codigo_producto
-	nombre_producto
-	precio_unidad
-	numero_unidades
-
-pedidos
-	codigo_pedidos
-	struct clientes cliente
-	struct productos producto[100]
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,27 +27,21 @@ struct usuario{
     int pass;
 };
 struct clientes{
-	int codigo_cliente;
-	char Nombre_empresa[23];
-	char Nombre_cliente[23];
+	int codigoCliente;
+	char nombreEmpresa[23];
+	char nombreCliente[23];
 	char puesto[23];
 };
 struct productos{
-	int codigo_producto;
-	char nombre_producto[23];
-	float precio_unidad;
-	float numero_unidades;
+	int codigoProducto;
+	char nombreProducto[23];
+	float precioUnidad;
+	float numeroUnidades;
 };
 struct pedidos{
-	int codigo_pedidos;
+	int codigoPedido;
 	struct clientes cliente;
 	struct productos producto[L];
-};
-struct tablas{
-    struct clientes cliente[L];
-    struct productos producto[L];
-    struct pedidos pedido[L];
-    int contador[4];//contador de clientes, productos, pedidos y producto dentro de pedido
 };
 //definición de funciones
 void esperar();
@@ -73,39 +49,40 @@ void margen(int m);
 int autenticacion(struct usuario real);
 int revisarUsuario(struct usuario real, struct usuario nuevo);
 int menuP();
-int menuTabla(void);
-int alta(struct tablas *tabla);
-int baja(struct tablas *tabla);
-int consulta(struct tablas *tabla);
-int modifica(struct tablas *tabla);
+int alta(struct pedidos pedido[],int contador);
+int baja(struct pedidos pedido[]);
+int consulta(struct pedidos pedido[]);
+int modifica(struct pedidos pedido[]);
+
 //inicia main
 int main(void){
     struct usuario real={"admin",1234};
-    struct tablas tabla;
-    int m1=0;
+    struct pedidos pedido[L];
+    int m1=0, i=0, contador=0;
+    for(i=0;i<L;i++){
+        pedido[i].codigoPedido=0;
+    }
     autenticacion(real);
     while(m1!=5){
         m1=menuP();
-        switch(m1){
-            case 1:
-                while(alta(&tabla));
-                break;
-            case 2:
-                while(baja(&tabla));
-                break;
-            case 3:
-                while(consulta(&tabla));
-                break;
-            case 4:
-                while(modifica(&tabla));
-                break;
-            case 5:
-                break;
-            default:
+        if(m1 != 5){
+            if(m1>0 && m1<5){
+            margen(M);
+            printf("\n\tPedidos actuales: ");
+            for(i=0;i<L;i++)//revisar pedidos
+                if(pedido[i].codigoPedido)
+                    printf("[%d], ",pedido[i].codigoPedido);
+            if(m1==1){//dar de alta producto
+                if(!alta(pedido,contador));
+                    contador++;
+            }else{//preguntar cual producto 
+
+            }
+            }else{
                 margen(M);
                 printf("\n\tOpcion incorrecta, vuelva a intentarlo");
                 esperar();
-                break;
+            }
         }
     }
     return 0;
@@ -118,6 +95,7 @@ void margen(int m){
         printf("_");
     printf("\n");
 }
+
 void esperar(){
     fflush(stdin);
     margen(M);
@@ -178,37 +156,23 @@ int menuP(void){
     system(C);
     return op;
 }
-int menuTabla(void){
-    int op=0;
-    do{
-    system(C);
+int alta(struct pedidos pedido[], int contador){
     margen(M);
-    printf("\n\t\t\t\tFenix 1.1");
+    pedido[contador].codigoPedido=contador+1;
+    printf("\n\tPedido Nuevo N.- %d",contador+1);
     margen(M);
-    printf("\n\n\t1-Clientes\n\t2-Productos\n\t3-Pedidos\n\t4-Regresar");
+    printf("\n\tPaso 1 de 3: Alta del Cliente: ");
     margen(M);
-    printf("\n\n\t\tElige una opcion: ");
-    scanf("%d",&op);
-    if(op>4 || op<1){
-        margen(M);
-        printf("\n\tOpcion Invalida, vuelva a intentarlo");
-        esperar();
-    }    
-    }while(op>4 || op<1);
-    return op;
-}
-int alta(struct tablas *tabla){
-    int op=menuTabla();
+    printf("\n\n\tElige un codigo de cliente: ");
+    scanf("%d",&pedido[contador].cliente.codigoCliente);
+    printf("\n\tNombre de la empresa cliente: ");
+    scanf("%s",pedido[contador].cliente.nombreEmpresa);
+    printf("\n\tNombre del cliente: ");
+    scanf("%s",pedido[contador].cliente.nombreCliente);
+    printf("\n\tPuesto dentro de la empresa: ");
+    scanf("%s",pedido[contador].cliente.puesto);
 
-    system(C);
-    return 0;
+
+    esperar();
 }
-int baja(struct tablas *tabla){
-    return 0;
-}
-int consulta(struct tablas *tabla){
-    return 0;
-}
-int modifica(struct tablas *tabla){
-    return 0;
-}
+
