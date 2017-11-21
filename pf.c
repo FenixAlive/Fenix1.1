@@ -1,6 +1,6 @@
-//error al dar de baja producto
-//hacer funcion para inicializar pedidos en 0 y usarlo para borrar un pedido
-//cambiar en windows: 18, 20, 218, 225
+//revisar error al modificar cliente por segunda vez
+//terminar modificar producto y dar opcion de agregar nuevo producto
+//cambiar en windows: C y W
 //Proyecto Final
 //Seminario  de Problemas de Programación
 //Elaborado por Luis Angel Muñoz Franco
@@ -11,9 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define W 0//1 windows, 0 linux
+#define W 1//1 windows, 0 linux
 #define LP 100
-#define C "clear"////////////////cambiar a cls en windows
+#define C "cls"////////////////cambiar a cls en windows
 #define M 67 //lineas de margen
 #define L 97 //limite de array
 #define T 23
@@ -342,7 +342,7 @@ int consulta(struct pedidos pedido[], int contador){
     return 0;
 }//termina consulta
 int modifica(struct pedidos pedido[], int contador){
-    int num=-1, num2=0, num3=0;
+    int num=-1, num2=0, num3=-1;
     char cont='s';
     printf("\n\t\t\tModificar Pedido");
     margen(M);
@@ -352,21 +352,99 @@ int modifica(struct pedidos pedido[], int contador){
     fflush(stdin);
     scanf("%d",&num);
     if(num && pedido[num-1].codigoPedido==num){
-        system(C);
-        dibujarPedido(pedido[num-1]);
-        margen(M);
         while(num2 != 3){
-            printf("\n\n\t\tQue quieres modificar?\n\n\t\t\t1-Datos del cliente.\n\n\t\t\t2-Productos.\n\n\t\t\t3-Regresar.\n\n\t\tElige una opcion: ");
+            system(C);
+            dibujarPedido(pedido[num-1]);
+            margen(M);
+            printf("\n\n\t\tQue quieres modificar?\n\n\t\t\t1-Datos del cliente.\n\t\t\t2-Productos.\n\t\t\t3-Regresar.\n\n\t\tElige una opcion: ");
+            fflush(stdin);
             fflush(stdin);
             scanf("%d",&num2);
-            if(num2>0 || num<3){
-                //hacer
+            if(num2>0 && num2<3){
+                system(C);
+                dibujarPedido(pedido[num-1]);
+                margen(M);
+                printf("\nentre %d",num2);
+                esperar();
+                if(num2 == 1){
+                    while(num3 != 5){
+                        printf("\n\n\t\tQue quieres modificar?\n\n\t\t\t1-Codigo del cliente.\n\t\t\t2-Nombre de la empresa.\n\t\t\t3-Nombre del cliente.\n\t\t\t4-Puesto\n\t\t\t5-Regresar\n\n\t\tElige una opcion: ");
+                        fflush(stdin);
+                        scanf("%d",&num3);
+                        switch(num3){
+                            case 1:
+                                printf("\n\n\tNuevo codigo del cliente: ");
+                                cin(pedido[num-1].cliente.codigoCliente);
+                                num3=5;
+                                break;
+                            case 2:
+                                printf("\n\tNuevo nombre de la empresa: ");
+                                cin(pedido[num-1].cliente.nombreEmpresa);
+                                num3=5;
+                                break;
+                            case 3:
+                                printf("\n\tNuevo nombre del cliente: ");
+                                cin(pedido[num-1].cliente.nombreCliente);
+                                num3=5;
+                                break;
+                            case 4:
+                                printf("\n\tNuevo puesto: ");
+                                cin(pedido[num-1].cliente.puesto);
+                                num3=5;
+                                break;
+                            case 5:
+                                break;
+                            default:
+                                margen(M);
+                                printf("\n\tOpcion no valida, vuelve a intentarlo");
+                                break;
+                        }
+                    }
+                }
+                if(num2 == 2){
+                    int numProd=0;
+                    while(num3){
+                        printf("\n\n\t\tNumero de productos a modificar o presiona 0 para terminar: ");
+                        while(pedido[num-1].producto[numProd].codigoProducto[0] != '\0'){
+                            numProd++;
+                            printf("[%d], ",numProd);
+                        }
+                        if(!numProd){
+                            printf("No hay Productos a modificar");
+                            esperar();
+                        }else{
+                            printf("\n\n\t\tElige un numero de producto: ");
+                            fflush(stdin);
+                            scanf("%d",&num3);
+                        }
+                        switch(num3){
+                            printf("\t\tNuevo codigo: ");
+                            fflush(stdin);
+                            cin(pedido[num-1].producto[numProd].codigoProducto);
+        printf("\t\tNombre: ");
+        cin(pedido[contador].producto[i].nombreProducto);
+        printf("\t\tPrecio por Unidad: ");
+        fflush(stdin);
+        scanf("%f",&pedido[contador].producto[i].precioUnidad);
+        printf("\t\tNo. de Unidades: ");
+        fflush(stdin);
+        scanf("%f",&pedido[contador].producto[i].numeroUnidades);
+                            default:
+                                margen(M);
+                                printf("\n\t\tOpcion no valida, vuelve a intentarlo")
+                                break;
+                        }
+                    }
+
+                }
             }else if(num2<1 || num2 >3){
                 margen(M);
                 printf("\n\tOpcion no valida, intente de nuevo");
+                getchar();
+                esperar();
             }
         }
-
+        if (num2==3) return 1;
     }else if(num > contador && num){
         margen(M);
         printf("\n\tPedido no valido, aun no se llega a ese numero de pedido");
@@ -376,7 +454,7 @@ int modifica(struct pedidos pedido[], int contador){
     }
     if(num){
         margen(M);
-        printf("\n\tQuieres consultar otro pedido? s/n: ");
+        printf("\n\tQuieres modificar otro pedido? s/n: ");
         fflush(stdin);
         if(!W) getchar();
         scanf("%c",&cont);
