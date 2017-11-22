@@ -1,4 +1,4 @@
-//revisar error al modificar cliente por segunda vez
+//hacer funcion cliente y producto
 //terminar modificar producto y dar opcion de agregar nuevo producto
 //cambiar en windows: C y W
 //Proyecto Final
