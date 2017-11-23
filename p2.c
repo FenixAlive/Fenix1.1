@@ -46,8 +46,9 @@ int autenticacion(struct usuario real);
 int revisarString(char real[], char nuevo[]);
 int menuP();
 int datosCliente(int datoMod, struct pedidos pedido[], int contador);
-int datosProducto(int datoMod, struct pedidos pedido[], int contador);
-void dibujarPedido(struct pedidos pedido);
+int datosProducto(int datoMod, struct pedidos pedido[], int contador, int i);
+int nuevoProducto(struct pedidos pedido[], int contador);
+void dibujarPedido(struct pedidos pedido, int contador);
 int alta(struct pedidos pedido[], int contador);
 int baja(struct pedidos pedido[], int contador[]);
 int consulta(struct pedidos pedido[]);
@@ -109,7 +110,7 @@ int revisarPedidos(struct pedidos pedido[]){
     int i=0, contador=0;
     margen(M);
     printf("\n\tPedidos actuales: ");
-    for(i=0;i<L;i++)//revisar pedidos
+    for(i=0;i<L;i++)
         if(pedido[i].codigoPedido){
             if(contador%9==0 && contador)
                 printf("\n\t\t\t ");
@@ -134,7 +135,7 @@ int preguntarPedido(int m1, struct pedidos pedido[], int contador){
     scanf("%d",&r);
     margen(M);
     if(r>0 && r <= contador){
-        dibujarPedido(pedido[r-1]);
+        dibujarPedido(pedido[r-1],r-1);
         if(!pedido[r-1].codigoPedido) r=-1;
     }else if(r > contador){
         margen(M);
@@ -156,7 +157,7 @@ void esperar(){
     margen(M);
     printf("\n\n\t\t\tPresiona enter para continuar: ");
     getchar();
-    if(!W) getchar();/////////////////////////////////////////quitar en windows
+    if(!W) getchar();
     system(C);
 }
 int autenticacion(struct usuario real){
@@ -215,16 +216,60 @@ int menuP(void){
 void cin(char variable[]){
     fflush(stdin);
     if(W)
-        gets(variable);//////////////////////poner en windows
+        gets(variable);
     else
         scanf("%s",variable);
 }
 int datosCliente(int datoMod, struct pedidos pedido[], int contador){
-//hacer////////////////////////////////////////////////////////////////
+    margen(M);
+    if(!datoMod || datoMod==1){
+        printf("\n\n\tCodigo del cliente: ");
+        cin(pedido[contador].cliente.codigoCliente);
+    }if(!datoMod || datoMod==2){
+        printf("\n\tNombre de la empresa: ");
+        cin(pedido[contador].cliente.nombreEmpresa);
+    }if(!datoMod || datoMod==3){
+        printf("\n\tNombre del cliente: ");
+        cin(pedido[contador].cliente.nombreCliente);
+    }if(!datoMod || datoMod==4){
+        printf("\n\tPuesto: ");
+        cin(pedido[contador].cliente.puesto);
+    }
+    return 0;
 }
-int datosProducto(int datoMod, struct pedidos pedido[], int contador){
-
-//hacer////////////////////////////////////////////////////////////////
+int datosProducto(int datoMod, struct pedidos pedido[], int contador, int i){
+    margen(M);
+    if(!datoMod || datoMod==1){
+        printf("\n\t %d\tCodigo: ",i);
+        cin(pedido[contador].producto[i-1].codigoProducto);
+    }if(!datoMod || datoMod==2){
+        printf("\t\tNombre: ");
+        cin(pedido[contador].producto[i-1].nombreProducto);
+    }if(!datoMod || datoMod==3){
+        printf("\t\tPrecio por Unidad: ");
+        fflush(stdin);
+        scanf("%f",&pedido[contador].producto[i-1].precioUnidad);
+    }if(!datoMod || datoMod==4){
+        printf("\t\tNo. de Unidades: ");
+        fflush(stdin);
+        scanf("%f",&pedido[contador].producto[i-1].numeroUnidades);
+    }
+    return 0;
+}
+int nuevoProducto(struct pedidos pedido[], int contador){
+    char cont='s';
+    while(cont=='s'){
+        dibujarPedido(pedido[contador], contador);
+        pedido[contador].contProd++;
+        printf("\n\t\t\t\tAlta de Producto: ");
+        datosProducto(0, pedido, contador, pedido[contador].contProd);
+        margen(M);
+        printf("\n\t Agregar otro producto? s/n: ");
+        fflush(stdin);
+        if(!W) getchar();
+        scanf("%c",&cont);
+    }
+    return 0;
 }
 int alta(struct pedidos pedido[], int contador){
     int i=0;
@@ -233,65 +278,31 @@ int alta(struct pedidos pedido[], int contador){
     pedido[contador].codigoPedido=contador+1;
     printf("\n\tPedido Nuevo N.- %d",contador+1);
     margen(M);
-    printf("\n\tPaso 1: Alta del Cliente: ");
-    margen(M);
-    printf("\n\n\tCodigo del cliente: ");
-    fflush(stdin);
-    cin(pedido[contador].cliente.codigoCliente);
-    printf("\n\tNombre de la empresa: ");
-    cin(pedido[contador].cliente.nombreEmpresa);
-    printf("\n\tNombre del cliente: ");
-    cin(pedido[contador].cliente.nombreCliente);
-    printf("\n\tPuesto: ");
-    cin(pedido[contador].cliente.puesto);
+    printf("\n\t\t\t\tAlta del Cliente: ");
+    datosCliente(0, pedido, contador);
     //inicializar productos en 0
     for(i=0;i<L;i++)
         pedido[contador].producto[i].codigoProducto[0]='\0';
-    i=0;
-    while(cont=='s'){
-        dibujarPedido(pedido[contador]);
-        pedido[contador].contProd++;
-        margen(M);
-        printf("\n\tPedido Nuevo N.- %d",contador+1);
-        margen(M);
-        printf("\n\tPaso 2: Alta del Producto: ");
-        margen(M);
-        printf("\n\t %d\tCodigo: ",i+1);
-        fflush(stdin);
-        cin(pedido[contador].producto[i].codigoProducto);
-        printf("\t\tNombre: ");
-        cin(pedido[contador].producto[i].nombreProducto);
-        printf("\t\tPrecio por Unidad: ");
-        fflush(stdin);
-        scanf("%f",&pedido[contador].producto[i].precioUnidad);
-        printf("\t\tNo. de Unidades: ");
-        fflush(stdin);
-        scanf("%f",&pedido[contador].producto[i].numeroUnidades);
-        margen(M);
-        printf("\n\t Agregar otro producto? s/n: ");
-        fflush(stdin);
-        if(!W) getchar();/////////////////////////////////////////////
-        scanf("%c",&cont);
-        i++;
-    }
+    nuevoProducto(pedido, contador);
     margen(M);
     printf("\tQuieres dar de alta un nuevo pedido? s/n: ");
     fflush(stdin);
-    if(!W) getchar();/////////////////////quitar en windows
+    if(!W) getchar();
     scanf("%c",&cont);
-    contador++;
     if(cont=='s')
         return 1;
     else
         return 0;
 }//fin alta pedido
-void dibujarPedido(struct pedidos pedido){
+void dibujarPedido(struct pedidos pedido, int contador){
     int i=0;
     system(C);
     if(!pedido.codigoPedido){
         margen(M);
         printf("\n\t\t\t\tPEDIDO CANCELADO");
     }
+    margen(M);
+    printf("\n\t\tPedido N.- %d",contador+1);
     margen(M);
     printf("\n\t\t\t\tDatos del cliente:\n");
     printf("\n\tCodigo: \t\t\tNombre empresa: ");
@@ -346,79 +357,52 @@ int consulta(struct pedidos pedido[]){
     return 0;
 }//termina consulta
 int modifica(struct pedidos pedido[], int contador[]){
-    int i=0, num2=-1, num3=-1, num4=-1;
+    int i=0, num[4]={-1,-1,-1,-1};
     char cont='s';
-    /*
-            printf("\n\n\t\tQue quieres modificar?\n\n\t\t\t1-Datos del cliente.\n\t\t\t2-Productos.\n\t\t\t3-Regresar.\n\n\t\tElige una opcion: ");
+    printf("\n\n\t\tQue quieres modificar?\n\n\t\t\t1-Datos del cliente.\n\t\t\t2-Productos.\n\t\t\t3-Regresar.\n\n\t\tElige una opcion: ");
             fflush(stdin);
-            scanf("%d",&num2);
-            if(num2>0 && num2<3){
-                num3=-1;
-                dibujarPedido(pedido[contador[2]-1]);
+            scanf("%d",&num[0]);
+            if(num[0]>0 && num[0]<3){
+                dibujarPedido(pedido[contador[2]-1],contador[2]-1);
                 margen(M);
-                if(num2 == 1){
-                    while(num3 != 5){
+                if(num[0] == 1)
+                   do{
                         printf("\n\n\t\tQue quieres modificar?\n\n\t\t\t1-Codigo del cliente.\n\t\t\t2-Nombre de la empresa.\n\t\t\t3-Nombre del cliente.\n\t\t\t4-Puesto\n\t\t\t5-Regresar\n\n\t\tElige una opcion: ");
                         fflush(stdin);
                         if(!W) getchar();
-                        scanf("%d",&num3);
-                        switch(num3){
-                            case 1:
-                                printf("\n\n\tNuevo codigo del cliente: ");
-                                cin(pedido[contador[2]-1].cliente.codigoCliente);
-                                num3=5;
-                                break;
-                            case 2:
-                                printf("\n\tNuevo nombre de la empresa: ");
-                                cin(pedido[num-1].cliente.nombreEmpresa);
-                                num3=5;
-                                break;
-                            case 3:
-                                printf("\n\tNuevo nombre del cliente: ");
-                                cin(pedido[num-1].cliente.nombreCliente);
-                                num3=5;
-                                break;
-                            case 4:
-                                printf("\n\tNuevo puesto: ");
-                                cin(pedido[num-1].cliente.puesto);
-                                num3=5;
-                                break;
-                            case 5:
-                                break;
-                            default:
+                        scanf("%d",&num[1]);
+                        if(num[1]>5 || num[1]<1){
                                 margen(M);
                                 printf("\n\tOpcion no valida, vuelve a intentarlo");
-                                break;
-                        }
-                    }
-                }
-                if(num2 == 2){
-                    while(num3 != 4){
-                        dibujarPedido(pedido[num-1]);
+                        }else if(num[1] != 5)
+                            datosCliente(num[1], pedido, contador[2]);
+                    }while(num[1] != 5);
+                if(num[0] == 2){
+                   do{
+                        dibujarPedido(pedido[contador[2]-1],contador[2]-1);
                         margen(M);
                         printf("\n\n\t\tOpciones: \n\n\t\t1-Modificar Producto\n\t\t2-Agregar producto\n\t\t3-Eliminar producto\n\t\t4-Regresar\n\n\t\t\tElige una opcion: ");
                         fflush(stdin);
                         if(!W) getchar();
-                        scanf("%d",&num3);
-                        if(num3 == 1 || num3 == 3){
-                            system(C);
-                            dibujarPedido(pedido[num-1]);
+                        scanf("%d",&num[1]);
+                        if(num[1] == 1 || num[1] == 3){
+                            dibujarPedido(pedido[contador[2]-1],contador[2]-1);
                             margen(M);
-                            if(!pedido[num-1].contProd)
+                            if(!pedido[contador[2]-1].contProd)
                                 printf("\n\t\t Este pedido no tiene productos para realizar esta opcion");
                             else{
-                                printf("\n\n\t\tNumero de productos disponibles, puedes presionar 0 para terminar: \n\n\t\t");
-                                for(i=0;i<pedido[num-1].contProd;i++)
-                                    if(pedido[num-1].producto[i].codigoProducto[0] != '\0')
+                                printf("\n\n\t\tPuedes presionar 0 para terminar:\n\t\tProductos disponibles: \n\n\t\t");
+                                for(i=0;i<pedido[contador[2]-1].contProd;i++)
+                                    if(pedido[contador[2]-1].producto[i].codigoProducto[0] != '\0')
                                         printf("[%d], ",i+1);
                                 margen(M);
                                 printf("\n\n\t\tElige el numero de producto: ");
                                 fflush(stdin);
-                                scanf("%d",&num4);
-                                if(num4>0 && num4<=pedido[num-1].contProd){
-                                    if(num3==1){
+                                scanf("%d",&num[2]);
+                                if(num[2]>0 && num[2]<=pedido[contador[2]-1].contProd){
+                                    if(num[1]==1){
                                         //modificar producto
-                                    }else if(num3==3){
+                                    }else if(num[1]==3){
                                         //eliminar producto
                                     }
                                 }else{
@@ -430,47 +414,17 @@ int modifica(struct pedidos pedido[], int contador[]){
                         }
                          printf("\n\n\t\tNumero de productos a modificar, puedes presionar 0 para terminar: ");
                         margen(M);
-                        for(i=0;i<pedido[num-1].numProd;i++)
-                            if(pedido[num-1].producto[numProd].codigoProducto[0] != '\0')
-                                printf("[%d], ",numProd);
-                        if(!numProd){
-
-                        }else{
-
-                        }
-                        switch(num3){
-                            printf("\t\tNuevo codigo: ");
-                            fflush(stdin);
-                            cin(pedido[num-1].producto[numProd].codigoProducto);
-                            printf("\t\tNuevo Nombre: ");
-                            cin(pedido[num-1].producto[numProd].nombreProducto);
-                            printf("\t\tNuevo Precio por Unidad: ");
-                            fflush(stdin);
-                            scanf("%f",&pedido[num-1].producto[numProd].precioUnidad);
-                            printf("\t\tNo. de Unidades: ");
-                            fflush(stdin);
-                            scanf("%f",&pedido[num-1].producto[numProd].numeroUnidades);
-                            break;
-                            default:
-                                margen(M);
-                                printf("\n\t\tOpcion no valida, vuelve a intentarlo");
-                                break;
-                                else if(!pedido[num-1].numProd)
-                                    printf("No hay Productos a modificar");
-                                    esperar();
-
-                        }
-                
-                    }
-
+                        for(i=0;i<pedido[contador[2]-1].contProd;i++)
+                            if(pedido[contador[2]-1].producto[i].codigoProducto[0] != '\0')
+                                printf("[%d], ",i+1);
+                    }while(num[1] != 4);
                 }            
-            }else if(num2<1 || num2 >3){
+            }else if(num[0]<1 || num[0] >3){
                 margen(M);
                 printf("\n\tOpcion no valida, intente de nuevo");
                 esperar();
             }
-        if (num2==3) return 1;
-        */
+        if (num[0]==3) return 1;
         margen(M);
         printf("\n\tQuieres modificar otro pedido? s/n: ");
         fflush(stdin);
