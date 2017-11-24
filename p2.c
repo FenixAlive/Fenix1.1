@@ -53,6 +53,7 @@ int alta(struct pedidos pedido[], int contador);
 int baja(struct pedidos pedido[], int contador[]);
 int consulta(struct pedidos pedido[]);
 int modifica(struct pedidos pedido[], int contador[]);
+int eliminarProducto(struct pedidos pedido[], int contador, int pi);
 
 //inicia main
 int main(void){
@@ -62,7 +63,7 @@ int main(void){
     //contador[0]=consecutivo de folio, contador[1]=pedidos vigentes, contador[2]=eleccion de pedido del usuario
     for(i=0;i<L;i++)
         pedido[i].codigoPedido=0;
-    //autenticacion(real);/////////////////////////////////quitar comentario al final
+    autenticacion(real);
     while(m1!=5){
         m1=menuP();
         if(m1>0 && m1<5){
@@ -397,17 +398,19 @@ int modifica(struct pedidos pedido[], int contador[]){
             if(num[1]==-1){
                 printf("\n\n\t\tOpciones: \n\n\t\t1-Modificar Producto\n\t\t2-Agregar producto\n\t\t3-Eliminar producto\n\t\t4-Regresar\n\n\t\t\tElige una opcion: ");
                 fflush(stdin);
-                if(!W) getchar();
                 scanf("%d",&num[1]);
             }else if(num[1] > 0 && num[1] < 4){
-                /////////////////////////////////////////////////
-                ////ver si es modificacion o eliminacion de producto revisar primero que haya producto
-                    if(num[1] == 1 || num[3] == 3){
+            //ver si es modificacion o eliminacion de producto revisar primero que haya producto
+                    if(num[1] == 1 || num[1] == 3){
                         if(num[2] == -1){
-                            if(!pedido[contador[2]-1].contProd)
+                            if(!pedido[contador[2]-1].contProd){
                                 printf("\n\t\t Este pedido no tiene productos para realizar esta opcion");
-                            else{
-                                printf("\n\t\tPuedes presionar 0 para terminar:\n\t\tProductos disponibles: \n\n\t\t");
+                                num[1]=-1;
+                                esperar();
+                            }else{
+                                printf("\n\t\tPuedes presionar 0 para regresar.");
+                                margen(M);
+                                printf("\n\t\tProductos disponibles: \n\n\t\t");
                                 for(i=0;i<pedido[contador[2]-1].contProd;i++)
                                     if(pedido[contador[2]-1].producto[i].codigoProducto[0] != '\0')
                                         printf("[%d], ",i+1);
@@ -431,8 +434,8 @@ int modifica(struct pedidos pedido[], int contador[]){
                                 }else
                                     num[3]=-2;
                             }else if(num[1]==3){
-                                        //eliminar producto
-                                        //hacer un ciclo que recorra el producto eliminado
+                                eliminarProducto(pedido, contador[2]-1, num[2]);
+                                num[2]=-1;
                             }
                         }else if(!num[2]){
                             num[2]=-1;
@@ -440,7 +443,6 @@ int modifica(struct pedidos pedido[], int contador[]){
                         }else
                             num[2]=-2;
                     }else if(num[1]==2){ //agregar nuevo producto
-                        for(i=0;i<pedido[contador[2]-1].contProd;i++);
                         nuevoProducto(pedido, contador[2]-1);
                         num[1]=-1;
                     }else if(num[2] ==5){
@@ -465,71 +467,6 @@ int modifica(struct pedidos pedido[], int contador[]){
                 num[i]=-1;
             }
     }while(num[0] != 3);
-    /*
-            if(num[0]>0 && num[0]<3){
-                dibujarPedido(pedido[contador[2]-1],contador[2]-1);
-                margen(M);
-                if(num[0] == 1)
-                    do{
-                        printf("\n\n\t\tQue quieres modificar?\n\n\t\t\t1-Codigo del cliente.\n\t\t\t2-Nombre de la empresa.\n\t\t\t3-Nombre del cliente.\n\t\t\t4-Puesto\n\t\t\t5-Regresar\n\n\t\tElige una opcion: ");
-                        fflush(stdin);
-                        if(!W) getchar();
-                        scanf("%d",&num[1]);
-                        if(num[1]>5 || num[1]<1){
-                                margen(M);
-                                printf("\n\tOpcion no valida, vuelve a intentarlo");
-                        }else if(num[1] != 5)
-                            datosCliente(num[1], pedido, contador[2]);
-                    }while(num[1] != 5);
-                if(num[0] == 2){
-                    do{
-                        dibujarPedido(pedido[contador[2]-1],contador[2]-1);
-                        margen(M);
-                        printf("\n\n\t\tOpciones: \n\n\t\t1-Modificar Producto\n\t\t2-Agregar producto\n\t\t3-Eliminar producto\n\t\t4-Regresar\n\n\t\t\tElige una opcion: ");
-                        fflush(stdin);
-                        if(!W) getchar();
-                        scanf("%d",&num[1]);
-                        if(num[1] == 1 || num[1] == 3){
-                            dibujarPedido(pedido[contador[2]-1],contador[2]-1);
-                            margen(M);
-                            if(!pedido[contador[2]-1].contProd)
-                                printf("\n\t\t Este pedido no tiene productos para realizar esta opcion");
-                            else{
-                                printf("\n\n\t\tPuedes presionar 0 para terminar:\n\t\tProductos disponibles: \n\n\t\t");
-                                for(i=0;i<pedido[contador[2]-1].contProd;i++)
-                                    if(pedido[contador[2]-1].producto[i].codigoProducto[0] != '\0')
-                                        printf("[%d], ",i+1);
-                                margen(M);
-                                printf("\n\n\t\tElige el numero de producto: ");
-                                fflush(stdin);
-                                scanf("%d",&num[2]);
-                                if(num[2]>0 && num[2]<=pedido[contador[2]-1].contProd){
-                                    if(num[1]==1){
-                                        //modificar producto
-                                    }else if(num[1]==3){
-                                        //eliminar producto
-                                    }
-                                }else{
-                                    margen(M);
-                                    printf("\n\n\t\tNumero de producto no valido, intentalo de nuevo");
-                                    esperar();
-                                }
-                            }
-                        }
-                         printf("\n\n\t\tNumero de productos a modificar, puedes presionar 0 para terminar: ");
-                        margen(M);
-                        for(i=0;i<pedido[contador[2]-1].contProd;i++)
-                            if(pedido[contador[2]-1].producto[i].codigoProducto[0] != '\0')
-                                printf("[%d], ",i+1);
-                    }while(num[1] != 4);
-                }            
-            }else if(num[0]<1 || num[0] >3){
-                margen(M);
-                printf("\n\tOpcion no valida, intente de nuevo");
-                esperar();
-            }
-        if (num[0]==3) return 1;
-    */      
     margen(M);
     printf("\n\tQuieres modificar otro pedido? s/n: ");
     fflush(stdin);
@@ -539,3 +476,15 @@ int modifica(struct pedidos pedido[], int contador[]){
         return 1;
     return 0;
 }//termina modifica
+int eliminarProducto(struct pedidos pedido[], int contador, int pi){
+    int i=0;
+    pedido[contador].contProd--;
+    for(;i<pedido[contador].contProd;i++){
+        if( i >= pi-1 ){
+            pedido[contador].producto[i]=pedido[contador].producto[i+1];
+        }
+    }
+    pedido[contador].producto[pedido[contador].contProd].codigoProducto[0]='\0';
+    return 0;
+}//termina eliminarProducto
+//////////////////////////////termina programa
